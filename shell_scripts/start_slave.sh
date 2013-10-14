@@ -1,0 +1,48 @@
+<<COMMENT
+  @Description : Starts the slave process for the first time in a remote production instances
+      using SSH shell
+  @param : hostname:String        -- $1
+  @param : redis_list_name:String -- $2
+  @param : redis_event:String     -- $3
+COMMENT
+
+
+
+# mbd_git instance
+if [ $1 = "ec2-54-242-224-242.compute-1.amazonaws.com" ]; then
+  echo "[KRAKE_ENGINE — start_slave.sh ] : Resurrection mode. ID:krake_data"
+  what=cannot
+  
+# krake_data instance
+elif [ $1 = "ec2-204-236-207-28.compute-1.amazonaws.com" ]; then
+  echo "[KRAKE_ENGINE — start_slave.sh ] : Resurrection mode. ID:mbd_git"
+  what=cannot
+  
+# Adhoc spin up slaves
+else
+  echo "[KRAKE_ENGINE — start_slave.sh ] : Reincarnation mode"
+  what=can
+    
+fi
+
+
+# Boots the AWS instance
+ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
+" . ~/.nvm/nvm.sh && 
+  nvm use v0.8.8 && 
+  cd /home/prod/krake_phantomjs/ && 
+  git checkout -f &&
+  git pull origin master &&
+  npm install &&
+  cd /home/prod/krake_phantomjs/shell/ &&   
+  ./start_server.sh &&
+  cd /home/prod/krake_engine/ && 
+  git checkout -f && 
+  git pull origin master && 
+  export NODE_ENV=production && 
+  export CAN_SHUTDOWN=$what && 
+  npm install &&  
+  cd /home/prod/krake_engine/networking/ && 
+  forever stop -c coffee network_slave.coffee && 
+  forever start -c coffee network_slave.coffee $2 $3
+  "

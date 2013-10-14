@@ -1,0 +1,13 @@
+{
+  "author": "Gary Teh <garyjob@gmail.com>"
+  , "name": "ResqueMyAWS"
+  , "main": "./resque_my_aws.coffee"
+  , "version": "0.0.1"  
+  , "engines": {
+    "node": "=0.8.8"
+  }
+  , "dependencies": {
+      "coffee-resque" : ""
+    , "aws-sdk": ""    
+  }  
+}
