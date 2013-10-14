@@ -2,7 +2,7 @@
 AWS = require('aws-sdk')
 exec = require('child_process').exec
 
-if !process.env['AWS_ACCESS_KEY'] || !process.env['AWS_SECRET_KEY']
+if !process.env['AWS_ACCESS_KEY'] || !process.env['AWS_SECRET_KEY'] || !process.env['AWS_REGION']
   console.log 'Usage : include the following in your ~/.bashrc ' + 
     '\n\tAWS_ACCESS_KEY' +
     '\n\tAWS_SECRET_KEY' +

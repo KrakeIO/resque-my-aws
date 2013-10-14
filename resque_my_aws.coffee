@@ -1,6 +1,16 @@
+if !process.env['AWS_ACCESS_KEY'] || !process.env['AWS_SECRET_KEY'] || !process.env['AWS_REGION']
+  console.log 'Usage : include the following in your ~/.bashrc ' + 
+    '\n\tAWS_ACCESS_KEY' +
+    '\n\tAWS_SECRET_KEY' +
+    '\n\tAWS_REGION'
+  process.exit(1)
+
+
 redisHost = process.env['REDIS_HOST'] || "localhost"
 redisPort = process.env['REDIS_PORT'] || "6379"
 unleashTheKraken = require './jobs/unleash'
+
+channelName = process.env['AWS_REGION'] || 'aws_handling'
 
 myJobs =
   unleash: unleashTheKraken
