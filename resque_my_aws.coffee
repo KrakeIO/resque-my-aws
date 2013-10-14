@@ -19,7 +19,7 @@ myJobs =
 worker = require('coffee-resque').connect({
   host: redisHost,
   port: redisPort
-}).worker('aws_handling', myJobs)
+}).worker(channelName, myJobs)
 
 
 worker.on 'poll', (worker, queue)->
