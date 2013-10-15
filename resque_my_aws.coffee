@@ -20,7 +20,7 @@ redisPort = process.env["REDIS_PORT"] || "6379"
 worker = require("coffee-resque").connect({
   host: redisHost,
   port: redisPort
-}).worker( "ResqueMyAws", { unleash: unleashTheKraken } )
+}).worker( "krakenUnleashPool", { unleash: unleashTheKraken } )
 
 
 worker.on "poll", (worker, queue)->
