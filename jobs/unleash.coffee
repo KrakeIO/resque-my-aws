@@ -32,7 +32,11 @@ unleashTheKraken = (instanceId, listName, eventName, callback)->
     if err
       callback(new Error(err))
       
-    else
+    else if !kraken
+      console.log '[NETWORK_SUPERVISOR] %s : the kraken does not exist', instanceId    
+      callback && callback(new Error('the kraken does not exist'))
+    
+    else if kraken
       switch kraken.State.Code
         when 16 # when is awake
           if listName && eventName
@@ -58,7 +62,7 @@ unleashTheKraken = (instanceId, listName, eventName, callback)->
         
         else
           console.log '[NETWORK_SUPERVISOR] %s : Cannot unleash inactive kraken', instanceId
-          callback(new Error('fail'))
+          callback && callback(new Error('kraken is no longer active'))
 
 
 
