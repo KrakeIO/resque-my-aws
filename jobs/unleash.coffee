@@ -1,38 +1,9 @@
+# Runs the shell script against an AWS EC2
+
 # dependencies
-AWS = require 'aws-sdk'
 exec = require("child_process").exec
-
-
-# @Description: get AWS client
-# @param : awsRegion
-getAwsClient = (awsRegion)->
-  AWS.config.update { 
-    accessKeyId : AWS_ACCESS_KEY_ID
-    secretAccessKey : SECRET_ACCESS_KEY
-    region : awsRegion
-  }
-  new AWS.EC2().client
-
-
-
-# @Description: gets the state of the EC2 given an instanceID
-# @params: awsRegion:String
-# @params: instanceId:String
-# @param : callback:function(kraken:Object)
-getKraken = (awsRegion, instanceId, callback)->
-
-  ec2Client = getAwsClient awsRegion
-    
-  query = {
-    InstanceIds : [instanceId]
-  }
-  
-  ec2Client.describeInstances query, (err, data)=>
-    if err || data.Reservations.length == 0
-      callback && callback err, false
-          
-    else if data.Reservations.length > 0
-      callback && callback err, data.Reservations[0].Instances[0]
+getAwsClient = require './helper/get_aws_client'
+getKraken = require './helper/get_kraken'
 
 
 
@@ -79,12 +50,9 @@ unleashTheKraken = (awsRegion, instanceId, listName, eventName, callback)->
         
         else
           console.log "[NETWORK_SUPERVISOR] %s : Cannot unleash inactive kraken", instanceId
-          callback && callback(new Error("kraken is no longer active"))
+          callback && callback( new Error("kraken is no longer active") )
 
 
 
 module.exports = unleashTheKraken
 
-if !module.parent
-  unleashTheKraken "i-81e0b8d7", "someQueue", "someEvent", ()->
-    console.log "done"

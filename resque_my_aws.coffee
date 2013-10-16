@@ -9,18 +9,22 @@ if !process.env["AWS_ACCESS_KEY"] || !process.env["AWS_SECRET_KEY"]
 global.AWS_ACCESS_KEY_ID = process.env['AWS_ACCESS_KEY']
 global.SECRET_ACCESS_KEY = process.env['AWS_SECRET_KEY']
 unleashTheKraken = require "./jobs/unleash"
+summonTheKraken = require "./jobs/summon"
 
 # Environment configuration
-redisHost = process.env["REDIS_HOST"] || "localhost"
-redisPort = process.env["REDIS_PORT"] || "6379"
+global.REDIS_HOST = process.env["REDIS_HOST"] || "localhost"
+global.REDIS_PORT = process.env["REDIS_PORT"] || "6379"
 
 
 
 # setup a worker
 worker = require("coffee-resque").connect({
-  host: redisHost,
-  port: redisPort
-}).worker( "krakenUnleashPool", { unleash: unleashTheKraken } )
+  host: REDIS_HOST,
+  port: REDIS_PORT
+}).worker( "aws", { 
+  unleash: unleashTheKraken 
+  summon: summonTheKraken 
+})
 
 
 worker.on "poll", (worker, queue)->
@@ -47,5 +51,5 @@ console.log "started service on : " +
   process.env["AWS_ACCESS_KEY"], 
   process.env["AWS_SECRET_KEY"], 
   process.env["AWS_REGION"],
-  redisHost,
-  redisPort
+  REDIS_HOST,
+  REDIS_PORT
