@@ -28,7 +28,6 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, ma
   ec2Client.runInstances summoning_options, (err, data)=>
     if err then console.log '[NETWORK_SUPERVISOR] %s', err
     
-    console.log typeof data.Instances
     for x in [0...data.Instances.length]
       console.log '[NETWORK_SUPERVISOR] %s : Checking the status of our kraken', data.Instances[x].InstanceId
       instanceId = data.Instances[x].InstanceId
