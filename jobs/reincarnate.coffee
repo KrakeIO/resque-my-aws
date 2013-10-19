@@ -5,30 +5,39 @@ getAwsClient = require './helper/get_aws_client'
 getKraken = require './helper/get_kraken'
 
 reincarnateTheKraken = (awsRegion, instanceId, callback)->
-  console.log '[REINCARNATE] %s : Reincarnating a Kraken', instanceId
+  console.log '[REINCARNATE] %s : Reincarnating Kraken', instanceId
   getKraken awsRegion, instanceId, (err, kraken)->
-    taskQueue = false
-    eventEnqueue = false
-    kraken.Tags.forEach (tag)=>
-      if tag.Key == 'taskQueue' then taskQueue = tag.Value
-      else if tag.Key == 'eventEnqueue' then eventEnqueue = tag.Value
-    
-    resque = require('coffee-resque').connect({
-      host: REDIS_HOST,
-      port: REDIS_PORT
-    })
+  
+    if !kraken
+      callback && callback(new Error('Kraken not found'))
+      
+    else
+      taskQueue = false
+      eventEnqueue = false
+      kraken.Tags.forEach (tag)=>
+        if tag.Key == 'taskQueue' then taskQueue = tag.Value
+        else if tag.Key == 'eventEnqueue' then eventEnqueue = tag.Value
+  
+      resque = require('coffee-resque').connect({
+        host: REDIS_HOST,
+        port: REDIS_PORT
+      })    
 
-    ec2Client = getAwsClient awsRegion
-    ec2Client.terminateInstances { InstanceIds : [instanceId] }
+      ec2Client = getAwsClient awsRegion
+      console.log '[REINCARNATE] %s : Terminating Kraken', instanceId
+      ec2Client.terminateInstances { InstanceIds : [instanceId] }, (err, data)->
+        if err
+          callback && callback(new Error(err))
+          
+        else
+          resque.enqueue( "aws", "summon", [
+              awsRegion, 
+              kraken.ImageId,
+              kraken.SecurityGroups[0].GroupName, 
+              kraken.InstanceType, 1, 1, 
+              taskQueue, 
+              eventEnqueue ] )
     
-    resque.enqueue( "aws", "summon", [
-        awsRegion, 
-        AWS_IMAGE_ID, 
-        AWS_SECURITY_GROUP, 
-        AWS_INSTANCE_TYPE, 1, 1, 
-        taskQueue, 
-        eventEnqueue ] )
-    
-    callback && callback()
+          callback && callback()
 
 module.exports = reincarnateTheKraken

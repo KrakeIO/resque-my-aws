@@ -16,37 +16,65 @@ getKraken = require './helper/get_kraken'
 # @param: callback:function()
 unleashTheKraken = (awsRegion, instanceId, listName, eventName, callback)->
   console.log "[UNLEASH] %s : Unleashing Kraken", instanceId
-  getKraken awsRegion, instanceId, (err, kraken)->
+  
+  if !listName 
+    callback && callback(new Error("ListName does not exist"))
+    
+  else if !eventName
+    callback && callback(new Error("eventName does not exist"))
+      
+  else
+    getKraken awsRegion, instanceId, (err, kraken)->
+      if err
+        callback && callback(new Error("Error getting kraken"))
+      
+      else if !kraken
+        console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
+        callback && callback(new Error("the kraken does not exist"))
+        
+      command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName +
+        " " + listName + " " + eventName
+      console.log "[UNLEASH] %s : Shell command to be executed" + 
+        "\n\t\t%s", instanceId, command
+         
+      executeShellScript awsRegion, instanceId, command, (err, data)->
+        if err
+          callback && callback(err)
+        else
+          callback && callback()
+      
+
+
+# @Description : Executes the actual shell script on the EC2 instance
+# @param: awsRegion:String
+# @param: instanceId:String
+# @param: command:String
+# @param: callback:function()
+executeShellScript = (awsRegion, instanceId, command, callback)->
+
+  console.log '[UNLEASH] %s : Executing shell command', instanceId
+  getKraken awsRegion, instanceId, (err, kraken)->    
     if err
       callback && callback(new Error("Error getting kraken"))
-      
+  
     else if !kraken
       console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
       callback && callback(new Error("the kraken does not exist"))
-    
+        
     else if kraken
       switch kraken.State.Code
         when 16 # when is awake
-          if listName && eventName
-            command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName +
-              " " + listName + " " + eventName
+          exec command, (err, stdout, stderr)=>
+            if err
+              console.log '[UNLEASH] %s : Shell command failed.', instanceId
+              executeShellScript awsRegion, instanceId, command, callback
             
-            console.log "[UNLEASH] %s : executing shell command" + 
-              "\n\t\t%s", instanceId, command
-            
-            exec command, (err, stdout, stderr)=>
-              if err
-                console.log "[UNLEASH] Error executing ssh command" + 
-                  "\n\t\tMSG : %s", err
-                unleashTheKraken awsRegion, instanceId, listName, eventName, callback
-              
-              else
-                console.log stdout
-                console.log "[UNLEASH] %s : the kraken has been unleashed", instanceId
-                callback && callback()
+            else
+              console.log "[UNLEASH] %s : the kraken has been unleashed", instanceId
+              callback && callback()
               
         when 0
-          unleashTheKraken instanceId, listName, eventName, callback
+          executeShellScript awsRegion, instanceId, command, callback
         
         else
           console.log "[UNLEASH] %s : Cannot unleash inactive kraken", instanceId

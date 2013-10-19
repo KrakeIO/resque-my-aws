@@ -38,7 +38,7 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, ma
           callback && callback(new Error(err))
           
         else
-          console.log '[SUMMON] %s : Kraken added to unleash pool' +
+          console.log '[SUMMON] %s : Kraken sent for unleashing' +
             '\n\t\t%s', currInstanceId, awsRegion
             
           resque = require('coffee-resque').connect({
