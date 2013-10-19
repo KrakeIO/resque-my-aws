@@ -16,7 +16,7 @@ getKraken = require './helper/get_kraken'
 # @param: maxCount:String
 # @param: callback:function()
 summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, maxCount, queueName, eventName, callback)->
-
+  console.log '[SUMMON] : Summoning a Kraken'
   summoning_options = 
     ImageId : imageId
     MinCount : minCount || 1
@@ -26,19 +26,19 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, ma
   
   ec2Client = getAwsClient awsRegion
   ec2Client.runInstances summoning_options, (err, data)=>
-    if err then console.log '[NETWORK_SUPERVISOR] %s', err
+    if err then console.log '[SUMMON] %s', err
     
     for x in [0...data.Instances.length]
-      console.log '[NETWORK_SUPERVISOR] %s : Checking the status of our kraken', data.Instances[x].InstanceId
+      console.log '[SUMMON] %s : Checking the status of our kraken', data.Instances[x].InstanceId
       instanceId = data.Instances[x].InstanceId
       nameTheKraken awsRegion, instanceId, queueName, eventName
       awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
         if err
-          console.log '[NETWORK_SUPERVISOR] Error — Line 190 \n\t\t%s', err
+          console.log '[SUMMON] Error — Line 190 \n\t\t%s', err
           callback && callback(new Error(err))
           
         else
-          console.log '[NETWORK_SUPERVISOR] %s : Kraken added to unleash pool' +
+          console.log '[SUMMON] %s : Kraken added to unleash pool' +
             '\n\t\t%s', currInstanceId, awsRegion
             
           resque = require('coffee-resque').connect({
@@ -59,27 +59,27 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 
   getKraken awsRegion, instanceId, (err, kraken)->
     if err
-      console.log '[NETWORK_SUPERVISOR] %s : ERROR with instance\n\t\t%s', instanceId, err
+      console.log '[SUMMON] %s : ERROR with instance\n\t\t%s', instanceId, err
       callback && callback(err, instanceId)
               
     else if !kraken == 0
-      console.log '[NETWORK_SUPERVISOR] %s : The Kraken remains a myth. It cannot be unleashed.', instanceId      
+      console.log '[SUMMON] %s : The Kraken remains a myth. It cannot be unleashed.', instanceId      
         
     else if kraken
       
       switch kraken.State.Code
         when 16 
-          console.log '[NETWORK_SUPERVISOR] %s : The kraken is awake.', instanceId
+          console.log '[SUMMON] %s : The kraken is awake.', instanceId
           callback && callback(null, instanceId)
 
         when 0
-          console.log '[NETWORK_SUPERVISOR] %s : The kraken is still waking up. Recheck in 5secs', instanceId
+          console.log '[SUMMON] %s : The kraken is still waking up. Recheck in 5secs', instanceId
           setTimeout ()=>
             awakenTheKraken awsRegion, instanceId, callback 
           , 10000
           
         else
-          console.log '[NETWORK_SUPERVISOR] %s : The kraken is dead. It will never wake up', instanceId          
+          console.log '[SUMMON] %s : The kraken is dead. It will never wake up', instanceId          
           callback && callback("The Krake is dead", instanceId)
 
 
@@ -88,7 +88,7 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 # @param awsRegion:String
 # @param instanceId:String
 nameTheKraken = (awsRegion, instanceId, queueName, eventName)=>
-  console.log '[NETWORK_SUPERVISOR] %s : naming the krake', instanceId
+  console.log '[SUMMON] %s : naming the krake', instanceId
   options = 
     Resources : [instanceId],
     Tags : [{
@@ -105,11 +105,11 @@ nameTheKraken = (awsRegion, instanceId, queueName, eventName)=>
   ec2Client = getAwsClient awsRegion
   ec2Client.createTags options, (err, data)=>
     if err
-      console.log '[NETWORK_SUPERVISOR] %s : cannot name Kraken ' + 
+      console.log '[SUMMON] %s : cannot name Kraken ' + 
         '\n\t\tERROR : %s', instanceId, err
       
     else 
-      console.log '[NETWORK_SUPERVISOR] %s : Kraken has been named', instanceId
+      console.log '[SUMMON] %s : Kraken has been named', instanceId
 
 
 

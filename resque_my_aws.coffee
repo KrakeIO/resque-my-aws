@@ -1,21 +1,31 @@
-if !process.env["AWS_ACCESS_KEY"] || !process.env["AWS_SECRET_KEY"]
-  console.log "Usage : include the following in your ~/.bashrc " + 
-    "\n\tAWS_ACCESS_KEY" +
-    "\n\tAWS_SECRET_KEY"
-  process.exit(1)
-
-
-# dependencies
-global.AWS_ACCESS_KEY_ID = process.env['AWS_ACCESS_KEY']
-global.SECRET_ACCESS_KEY = process.env['AWS_SECRET_KEY']
-unleashTheKraken = require "./jobs/unleash"
-summonTheKraken = require "./jobs/summon"
+if !process.env["AWS_ACCESS_KEY"] || 
+  !process.env["AWS_SECRET_KEY"] || 
+  !process.env['AWS_IMAGE_ID'] || 
+  !process.env['AWS_SECURITY_GROUP'] || 
+  !process.env['AWS_INSTANCE_TYPE']
+  
+      console.log "Usage : include the following in your ~/.bashrc " + 
+        "\n\tAWS_ACCESS_KEY" +
+        "\n\tAWS_SECRET_KEY" + 
+        "\n\tAWS_IMAGE_ID" + 
+        "\n\tAWS_SECURITY_GROUP" + 
+        "\n\tAWS_INSTANCE_TYPE"
+        
+      process.exit(1)
 
 # Environment configuration
 global.REDIS_HOST = process.env["REDIS_HOST"] || "localhost"
 global.REDIS_PORT = process.env["REDIS_PORT"] || "6379"
+global.AWS_ACCESS_KEY_ID = process.env['AWS_ACCESS_KEY']
+global.SECRET_ACCESS_KEY = process.env['AWS_SECRET_KEY']
+global.AWS_IMAGE_ID = process.env['AWS_IMAGE_ID']
+global.AWS_SECURITY_GROUP = process.env['AWS_SECURITY_GROUP']
+global.AWS_INSTANCE_TYPE = process.env['AWS_INSTANCE_TYPE']
 
-
+# dependencies
+unleashTheKraken = require "./jobs/unleash"
+summonTheKraken = require "./jobs/summon"
+reincarnateTheKraken = require "./jobs/reincarnate"
 
 # setup a worker
 worker = require("coffee-resque").connect({
@@ -24,6 +34,7 @@ worker = require("coffee-resque").connect({
 }).worker( "aws", { 
   unleash: unleashTheKraken 
   summon: summonTheKraken 
+  reincarnate : reincarnateTheKraken
 })
 
 

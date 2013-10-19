@@ -1,6 +1,6 @@
 {
   "author": "Gary Teh <garyjob@gmail.com>"
-  , "name": "ResqueMyAWS"
+  , "name": "resque-my-aws"
   , "main": "./resque_my_aws.coffee"
   , "version": "0.0.1"  
   , "engines": {

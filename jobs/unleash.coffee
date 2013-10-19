@@ -15,13 +15,13 @@ getKraken = require './helper/get_kraken'
 # @param: eventName:String
 # @param: callback:function()
 unleashTheKraken = (awsRegion, instanceId, listName, eventName, callback)->
-  console.log "[NETWORK_SUPERVISOR] %s : Checking state", instanceId
+  console.log "[UNLEASH] %s : Unleashing Kraken", instanceId
   getKraken awsRegion, instanceId, (err, kraken)->
     if err
       callback && callback(new Error("Error getting kraken"))
       
     else if !kraken
-      console.log "[NETWORK_SUPERVISOR] %s : the kraken does not exist", instanceId    
+      console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
       callback && callback(new Error("the kraken does not exist"))
     
     else if kraken
@@ -31,25 +31,25 @@ unleashTheKraken = (awsRegion, instanceId, listName, eventName, callback)->
             command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName +
               " " + listName + " " + eventName
             
-            console.log "[NETWORK_SUPERVISOR] %s : executing shell command" + 
+            console.log "[UNLEASH] %s : executing shell command" + 
               "\n\t\t%s", instanceId, command
             
             exec command, (err, stdout, stderr)=>
               if err
-                console.log "[NETWORK_SUPERVISOR] Error executing ssh command" + 
+                console.log "[UNLEASH] Error executing ssh command" + 
                   "\n\t\tMSG : %s", err
                 unleashTheKraken awsRegion, instanceId, listName, eventName, callback
               
               else
                 console.log stdout
-                console.log "[NETWORK_SUPERVISOR] %s : the kraken has been unleashed", instanceId
+                console.log "[UNLEASH] %s : the kraken has been unleashed", instanceId
                 callback && callback()
               
         when 0
           unleashTheKraken instanceId, listName, eventName, callback
         
         else
-          console.log "[NETWORK_SUPERVISOR] %s : Cannot unleash inactive kraken", instanceId
+          console.log "[UNLEASH] %s : Cannot unleash inactive kraken", instanceId
           callback && callback( new Error("kraken is no longer active") )
 
 

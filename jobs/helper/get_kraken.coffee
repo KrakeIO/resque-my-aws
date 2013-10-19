@@ -1,7 +1,7 @@
+# Gets the details of an EC2 instance
+
 # dependencies
 getAwsClient = require './get_aws_client'
-
-
 
 # @Description: gets the state of the EC2 given an instanceID
 # @params: awsRegion:String
