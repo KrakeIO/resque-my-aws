@@ -15,7 +15,7 @@ getKraken = require './helper/get_kraken'
 # @param: callback:function()
 unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
 
-  console.log "[UNLEASH] %s : Unleashing Kraken", instanceId  
+  console.log "[UNLEASH] %s : Unleashing Kraken in ", instanceId, awsRegion
   getKraken awsRegion, instanceId, (err, kraken)->
     if err
       callback && callback(new Error("Error getting kraken"))

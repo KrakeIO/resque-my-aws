@@ -16,7 +16,6 @@ getKraken = require './helper/get_kraken'
 # @param: callback:function()
 summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, callback)->
   console.log '[SUMMON] : Summoning a Kraken'
-  console.log arguments
   
   summoning_options = 
     ImageId : imageId
@@ -90,8 +89,7 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 # @param instanceId:String
 # @param: params:Array[String]
 nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
-  console.log '[SUMMON] %s : naming the krake', instanceId
-  console.log shellScriptParams
+  console.log '[SUMMON] %s : writing shell script parameters to krake', instanceId
   paramsLength = shellScriptParams.length - 1
   tags = []
   for x in [0..paramsLength]
@@ -112,7 +110,7 @@ nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
         '\n\t\tERROR : %s', instanceId, err
       
     else 
-      console.log '[SUMMON] %s : Kraken has been named', instanceId
+      console.log '[SUMMON] %s : Shell script parameters written', instanceId
 
 
 
