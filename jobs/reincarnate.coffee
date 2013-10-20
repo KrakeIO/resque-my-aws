@@ -1,12 +1,12 @@
 # Gets a running EC2 instance, fetches its TAGs and sends a request to spawn a new one
 
 # dependencies
-getAwsClient = require './helper/get_aws_client'
-getKraken = require './helper/get_kraken'
+getAwsClient = require '../helper/get_aws_client'
+Kraken = require '../model/kraken'
 
 reincarnateTheKraken = (awsRegion, instanceId, callback)->
   console.log '[REINCARNATE] %s : Reincarnating Kraken', instanceId
-  getKraken awsRegion, instanceId, (err, kraken)->
+  Kraken.getByID awsRegion, instanceId, (err, kraken)->
   
     if !kraken
       callback && callback(new Error('Kraken not found'))

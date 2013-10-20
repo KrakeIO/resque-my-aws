@@ -2,8 +2,8 @@
 
 # dependencies
 exec = require("child_process").exec
-getAwsClient = require './helper/get_aws_client'
-getKraken = require './helper/get_kraken'
+getAwsClient = require '../helper/get_aws_client'
+Kraken = require '../model/kraken'
 
 
 
@@ -57,7 +57,7 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptP
 # @params: instanceId:string
 awakenTheKraken = (awsRegion, instanceId, callback)=>
 
-  getKraken awsRegion, instanceId, (err, kraken)->
+  Kraken.getByID awsRegion, instanceId, (err, kraken)->
     if err
       console.log '[SUMMON] %s : ERROR with instance\n\t\t%s', instanceId, err
       callback && callback(err, instanceId)

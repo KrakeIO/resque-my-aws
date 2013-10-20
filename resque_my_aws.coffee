@@ -17,15 +17,19 @@ global.SECRET_ACCESS_KEY = process.env['AWS_SECRET_KEY']
 unleashTheKraken = require "./jobs/unleash"
 summonTheKraken = require "./jobs/summon"
 reincarnateTheKraken = require "./jobs/reincarnate"
+massacreTheKraken = require "./jobs/massacre"
 
 # setup a worker
 worker = require("coffee-resque").connect({
   host: REDIS_HOST,
   port: REDIS_PORT
+  
 }).worker( "aws", { 
   unleash: unleashTheKraken 
-  summon: summonTheKraken 
+  summon : summonTheKraken 
   reincarnate : reincarnateTheKraken
+  massacre : massacreTheKraken
+  
 })
 
 worker.on "poll", (worker, queue)->

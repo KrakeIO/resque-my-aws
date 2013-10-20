@@ -2,8 +2,8 @@
 
 # dependencies
 exec = require("child_process").exec
-getAwsClient = require './helper/get_aws_client'
-getKraken = require './helper/get_kraken'
+getAwsClient = require '../helper/get_aws_client'
+Kraken = require '../model/kraken'
 
 
 
@@ -16,7 +16,7 @@ getKraken = require './helper/get_kraken'
 unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
 
   console.log "[UNLEASH] %s : Unleashing Kraken in ", instanceId, awsRegion
-  getKraken awsRegion, instanceId, (err, kraken)->
+  Kraken.getByID awsRegion, instanceId, (err, kraken)->
     if err
       callback && callback(new Error("Error getting kraken"))
     
@@ -48,7 +48,7 @@ unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
 executeShellScript = (awsRegion, instanceId, command, callback)->
 
   console.log '[UNLEASH] %s : Executing shell command', instanceId
-  getKraken awsRegion, instanceId, (err, kraken)->    
+  Kraken.getByID awsRegion, instanceId, (err, kraken)->    
     if err
       callback && callback(new Error("Error getting kraken"))
   
