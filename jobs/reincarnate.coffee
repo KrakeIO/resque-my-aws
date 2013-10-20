@@ -12,11 +12,11 @@ reincarnateTheKraken = (awsRegion, instanceId, callback)->
       callback && callback(new Error('Kraken not found'))
       
     else
-      taskQueue = false
-      eventEnqueue = false
+      queueName = false
+      eventName = false
       kraken.Tags.forEach (tag)=>
-        if tag.Key == 'taskQueue' then taskQueue = tag.Value
-        else if tag.Key == 'eventEnqueue' then eventEnqueue = tag.Value
+        if tag.Key == 'taskQueue' then queueName = tag.Value
+        else if tag.Key == 'eventEnqueue' then eventName = tag.Value
   
       resque = require('coffee-resque').connect({
         host: REDIS_HOST,
@@ -35,8 +35,8 @@ reincarnateTheKraken = (awsRegion, instanceId, callback)->
               kraken.ImageId,
               kraken.SecurityGroups[0].GroupName, 
               kraken.InstanceType, 1, 1, 
-              taskQueue, 
-              eventEnqueue ] )
+              queueName, 
+              eventName ] )
     
           callback && callback()
 
