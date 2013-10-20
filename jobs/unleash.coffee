@@ -11,37 +11,32 @@ getKraken = require './helper/get_kraken'
 #   Will call itself again if there is an error in the shell script call
 # @param: awsRegion:String
 # @param: instanceId:String
-# @param: listName:String
-# @param: eventName:String
+# @param: shellScriptParams:Array[String]
 # @param: callback:function()
-unleashTheKraken = (awsRegion, instanceId, listName, eventName, callback)->
-  console.log "[UNLEASH] %s : Unleashing Kraken", instanceId
-  
-  if !listName 
-    callback && callback(new Error("ListName does not exist"))
+unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
+
+  console.log "[UNLEASH] %s : Unleashing Kraken", instanceId  
+  getKraken awsRegion, instanceId, (err, kraken)->
+    if err
+      callback && callback(new Error("Error getting kraken"))
     
-  else if !eventName
-    callback && callback(new Error("eventName does not exist"))
+    else if !kraken
+      console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
+      callback && callback(new Error("the kraken does not exist"))
       
-  else
-    getKraken awsRegion, instanceId, (err, kraken)->
+    command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName
+    paramsLength = shellScriptParams.length - 1      
+    for x in [0..paramsLength]
+      command += " " + shellScriptParams[x]
+      
+    console.log "[UNLEASH] %s : Shell command to be executed" + 
+      "\n\t\t%s", instanceId, command
+       
+    executeShellScript awsRegion, instanceId, command, (err, data)->
       if err
-        callback && callback(new Error("Error getting kraken"))
-      
-      else if !kraken
-        console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
-        callback && callback(new Error("the kraken does not exist"))
-        
-      command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName +
-        " " + listName + " " + eventName
-      console.log "[UNLEASH] %s : Shell command to be executed" + 
-        "\n\t\t%s", instanceId, command
-         
-      executeShellScript awsRegion, instanceId, command, (err, data)->
-        if err
-          callback && callback(err)
-        else
-          callback && callback()
+        callback && callback(err)
+      else
+        callback && callback()
       
 
 

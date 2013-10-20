@@ -1,7 +1,6 @@
 # Resque AWS
-
-This service listens to a queue on Redis for jobs. When it gets a job, 
-perform some AWS operations based on the provided parameters indicated in the job
+This service performs the task of rotating EC2 instances to get new IP addresses from AWS.
+It executes a shell script via SSH on newly spin up EC2 instances once they are ready
 
 # Pre-requisities
 
@@ -9,13 +8,11 @@ perform some AWS operations based on the provided parameters indicated in the jo
 - NODEJS
 - CoffeeScript
 - Redis
+- AWS account
 
 ## Setup configuration
 Set the following values in your ~/.bashrc file before running
 - AWS_ACCESS_KEY
 - AWS_SECRET_KEY
-- AWS_REGION
+- REDIS_HOST
 
-# Current Jobs handled
-- Spins up an EC2 instance
-- Executes an arbiturary shell script on an EC2 instance

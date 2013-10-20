@@ -12,15 +12,16 @@ getKraken = require './helper/get_kraken'
 # @param: imageId:String
 # @param: securityGroup:String
 # @param: instanceType:String
-# @param: minCount:String
-# @param: maxCount:String
+# @param: shellScriptParams:Array[String]
 # @param: callback:function()
-summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, maxCount, queueName, eventName, callback)->
+summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, callback)->
   console.log '[SUMMON] : Summoning a Kraken'
+  console.log arguments
+  
   summoning_options = 
     ImageId : imageId
-    MinCount : minCount || 1
-    MaxCount : maxCount || 1
+    MinCount : 1
+    MaxCount : 1
     SecurityGroups : [securityGroup]
     InstanceType : instanceType
   
@@ -31,7 +32,7 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, ma
     for x in [0...data.Instances.length]
       console.log '[SUMMON] %s : Checking the status of our kraken', data.Instances[x].InstanceId
       instanceId = data.Instances[x].InstanceId
-      nameTheKraken awsRegion, instanceId, queueName, eventName
+      nameTheKraken awsRegion, instanceId, shellScriptParams
       awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
         if err
           console.log '[SUMMON] Error — Line 190 \n\t\t%s', err
@@ -46,7 +47,7 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, minCount, ma
             port: REDIS_PORT
           })
           
-          resque.enqueue( 'aws', 'unleash', [awsRegion, currInstanceId, queueName, eventName] )
+          resque.enqueue( 'aws', 'unleash', [awsRegion, currInstanceId, shellScriptParams] )
           callback && callback()
 
 
@@ -87,20 +88,22 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 # @Description: Tags a kraken in a name for better viewing AWS console
 # @param awsRegion:String
 # @param instanceId:String
-nameTheKraken = (awsRegion, instanceId, queueName, eventName)=>
+# @param: params:Array[String]
+nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
   console.log '[SUMMON] %s : naming the krake', instanceId
+  console.log shellScriptParams
+  paramsLength = shellScriptParams.length - 1
+  tags = []
+  for x in [0..paramsLength]
+    currTag =
+      Key : x + ""
+      Value : shellScriptParams[x]
+
+    tags.push currTag
+    
   options = 
     Resources : [instanceId],
-    Tags : [{
-        Key : 'Name'
-        Value : queueName + ' > ' + eventName
-      },{
-        Key : 'taskQueue'
-        Value : queueName
-      },{
-        Key : 'eventEnqueue'
-        Value : eventName     
-    }]    
+    Tags : tags  
   
   ec2Client = getAwsClient awsRegion
   ec2Client.createTags options, (err, data)=>
