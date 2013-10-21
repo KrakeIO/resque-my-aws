@@ -1,7 +1,7 @@
 redisHost = process.env["REDIS_HOST"] || "localhost"
 redisPort = "6379"
 ec2Region = "ap-southeast-1"
-ec2Image = "ami-b0eaa1e2"
+ec2Image = "ami-c0e8a292"
 ec2SecurityGroup = "Krake Instance"
 ec2Type = "t1.micro"
 queueName = "queueName"
