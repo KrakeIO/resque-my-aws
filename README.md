@@ -1,4 +1,7 @@
 # Resque AWS
+by Team at [Krake.IO] (https://krake.io)
+
+# Overview
 This service performs the task of rotating EC2 instances to get new IP addresses from AWS.
 It executes a shell script via SSH on newly spin up EC2 instances once they are ready
 
