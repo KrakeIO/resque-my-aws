@@ -2,8 +2,7 @@
   @Description : Starts the slave process for the first time in a remote production instances
       using SSH shell
   @param : hostname:String        -- $1
-  @param : redis_list_name:String -- $2
-  @param : redis_event:String     -- $3
+  @param : queue_name:String -- $2
 COMMENT
 
 
@@ -43,5 +42,5 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   export CAN_SHUTDOWN=$what && 
   npm install &&  
   forever stop -c coffee krake_slave.coffee && 
-  forever start -c coffee krake_slave.coffee $2 $3
+  forever start -c coffee krake_slave.coffee $2
   "
