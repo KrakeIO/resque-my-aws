@@ -35,12 +35,12 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   npm install &&
   cd /home/prod/krake_phantomjs/shell/ &&   
   ./start_server.sh &&
-  cd /home/prod/krake_slave/ && 
+  cd /home/prod/krake_slave_server/ && 
   git checkout -f && 
   git pull origin master && 
   export NODE_ENV=production && 
   export CAN_SHUTDOWN=$what && 
   npm install &&  
-  forever stop -c coffee krake_slave.coffee && 
-  forever start -c coffee krake_slave.coffee $2
+  forever stop -c coffee krake_slave_server.coffee && 
+  forever start -c coffee krake_slave_server.coffee $2
   "
