@@ -33,8 +33,8 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   git checkout -f &&
   git pull origin master &&
   npm install &&
-  cd /home/prod/krake_phantomjs/shell/ &&   
-  ./start_server.sh &&
+  forever stop -c phantomjs --load-images=no server.js &&
+  forever start -c phantomjs --load-images=no server.js &&
   cd /home/prod/krake_slave_server/ && 
   git checkout -f && 
   git pull origin master && 
