@@ -15,7 +15,7 @@ Kraken = require '../model/kraken'
 # @param: shellScriptParams:Array[String]
 # @param: callback:function()
 summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, callback)->
-  console.log new Date() + '[SUMMON] : Summoning a Kraken'
+  console.log new Date() + ' [SUMMON] : Summoning a Kraken'
   
   summoning_options = 
     ImageId : imageId
