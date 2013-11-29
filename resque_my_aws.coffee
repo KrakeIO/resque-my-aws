@@ -35,13 +35,13 @@ worker = require("coffee-resque").connect({
 worker.on "poll", (worker, queue)->
 
 worker.on "job", (worker, queue, job)->
-  console.log "[AWS-RESQUE] : job received"  
+  console.log  new Date() + " [AWS-RESQUE] : job received"  
 
 worker.on "error", (err, worker, queue, job)->
-  console.log "[AWS-RESQUE] : job error, %s", err
+  console.log  new Date() + " [AWS-RESQUE] : job error, %s", err
 
 worker.on "success", (worker, queue, job, result)->
-  console.log "[AWS-RESQUE] : success" 
+  console.log  new Date() + " [AWS-RESQUE] : success" 
 
 worker.start()
 

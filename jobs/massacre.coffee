@@ -3,7 +3,7 @@ getAwsClient = require '../helper/get_aws_client'
 Kraken = require '../model/kraken'
 
 massacreTheKrakens = (awsRegion, shellScriptParams, callback)->
-  console.log '[MASSACRE] : consolidating hit list queuename : %s', shellScriptParams[0]
+  console.log new Date() + ' [MASSACRE] : consolidating hit list queuename : %s', shellScriptParams[0]
   Kraken.getAll awsRegion, shellScriptParams, (err, theKrakens)->
     if err
       callback && callback(new Error(err))
@@ -13,7 +13,7 @@ massacreTheKrakens = (awsRegion, shellScriptParams, callback)->
       
     else if theKrakens
       killList = theKrakens.map (kraken)->
-        console.log '[MASSACRE] %s : Terminating instance', kraken.InstanceId
+        console.log new Date() + ' [MASSACRE] %s : Terminating instance', kraken.InstanceId
         kraken.InstanceId
       
       tOpts =

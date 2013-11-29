@@ -15,13 +15,13 @@ Kraken = require '../model/kraken'
 # @param: callback:function()
 unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
 
-  console.log "[UNLEASH] %s : Unleashing Kraken in ", instanceId, awsRegion
+  console.log  new Date() + " [UNLEASH] %s : Unleashing Kraken in ", instanceId, awsRegion
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
     if err
       callback && callback(new Error("Error getting kraken"))
     
     else if !kraken
-      console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
+      console.log  new Date() + " [UNLEASH] %s : the kraken does not exist", instanceId    
       callback && callback(new Error("the kraken does not exist"))
       
     command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName
@@ -29,7 +29,7 @@ unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
     for x in [0..paramsLength]
       command += " " + shellScriptParams[x]
       
-    console.log "[UNLEASH] %s : Shell command to be executed" + 
+    console.log  new Date() + " [UNLEASH] %s : Shell command to be executed" + 
       "\n\t\t%s", instanceId, command
        
     executeShellScript awsRegion, instanceId, command, (err, data)->
@@ -47,13 +47,13 @@ unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
 # @param: callback:function()
 executeShellScript = (awsRegion, instanceId, command, callback)->
 
-  console.log '[UNLEASH] %s : Executing shell command', instanceId
+  console.log  new Date() + ' [UNLEASH] %s : Executing shell command', instanceId
   Kraken.getByID awsRegion, instanceId, (err, kraken)->    
     if err
       callback && callback(new Error("Error getting kraken"))
   
     else if !kraken
-      console.log "[UNLEASH] %s : the kraken does not exist", instanceId    
+      console.log  new Date() + " [UNLEASH] %s : the kraken does not exist", instanceId    
       callback && callback(new Error("the kraken does not exist"))
         
     else if kraken
@@ -61,18 +61,18 @@ executeShellScript = (awsRegion, instanceId, command, callback)->
         when 16 # when is awake
           exec command, (err, stdout, stderr)=>
             if err
-              console.log '[UNLEASH] %s : Shell command failed.', instanceId
+              console.log  new Date() + ' [UNLEASH] %s : Shell command failed.', instanceId
               executeShellScript awsRegion, instanceId, command, callback
             
             else
-              console.log "[UNLEASH] %s : the kraken has been unleashed", instanceId
+              console.log  new Date() + " [UNLEASH] %s : the kraken has been unleashed", instanceId
               callback && callback()
               
         when 0
           executeShellScript awsRegion, instanceId, command, callback
         
         else
-          console.log "[UNLEASH] %s : Cannot unleash inactive kraken", instanceId
+          console.log  new Date() + " [UNLEASH] %s : Cannot unleash inactive kraken", instanceId
           callback && callback( new Error("kraken is no longer active") )
 
 

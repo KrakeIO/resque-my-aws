@@ -15,7 +15,7 @@ Kraken = require '../model/kraken'
 # @param: shellScriptParams:Array[String]
 # @param: callback:function()
 summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, callback)->
-  console.log '[SUMMON] : Summoning a Kraken'
+  console.log new Date() + '[SUMMON] : Summoning a Kraken'
   
   summoning_options = 
     ImageId : imageId
@@ -26,19 +26,19 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptP
   
   ec2Client = getAwsClient awsRegion
   ec2Client.runInstances summoning_options, (err, data)=>
-    if err then console.log '[SUMMON] %s', err
+    if err then console.log  new Date() + ' [SUMMON] %s', err
     
     for x in [0...data.Instances.length]
-      console.log '[SUMMON] %s : Checking the status of our kraken', data.Instances[x].InstanceId
+      console.log new Date() + ' [SUMMON] %s : Checking the status of our kraken', data.Instances[x].InstanceId
       instanceId = data.Instances[x].InstanceId
       nameTheKraken awsRegion, instanceId, shellScriptParams
       awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
         if err
-          console.log '[SUMMON] Error — Line 190 \n\t\t%s', err
+          console.log new Date() + ' [SUMMON] Error — Line 190 \n\t\t%s', err
           callback && callback(new Error(err))
           
         else
-          console.log '[SUMMON] %s : Kraken sent for unleashing' +
+          console.log  new Date() + ' [SUMMON] %s : Kraken sent for unleashing' +
             '\n\t\t%s', currInstanceId, awsRegion
             
           resque = require('coffee-resque').connect({
@@ -59,27 +59,27 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
     if err
-      console.log '[SUMMON] %s : ERROR with instance\n\t\t%s', instanceId, err
+      console.log  new Date() + ' [SUMMON] %s : ERROR with instance\n\t\t%s', instanceId, err
       callback && callback(err, instanceId)
               
     else if !kraken == 0
-      console.log '[SUMMON] %s : The Kraken remains a myth. It cannot be unleashed.', instanceId      
+      console.log  new Date() + ' [SUMMON] %s : The Kraken remains a myth. It cannot be unleashed.', instanceId      
         
     else if kraken
       
       switch kraken.State.Code
         when 16 
-          console.log '[SUMMON] %s : The kraken is awake.', instanceId
+          console.log new Date() + ' [SUMMON] %s : The kraken is awake.', instanceId
           callback && callback(null, instanceId)
 
         when 0
-          console.log '[SUMMON] %s : The kraken is still waking up. Recheck in 5secs', instanceId
+          console.log new Date() + ' [SUMMON] %s : The kraken is still waking up. Recheck in 5secs', instanceId
           setTimeout ()=>
             awakenTheKraken awsRegion, instanceId, callback 
           , 10000
           
         else
-          console.log '[SUMMON] %s : The kraken is dead. It will never wake up', instanceId          
+          console.log new Date() + ' [SUMMON] %s : The kraken is dead. It will never wake up', instanceId          
           callback && callback("The Krake is dead", instanceId)
 
 
@@ -89,7 +89,7 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 # @param instanceId:String
 # @param: params:Array[String]
 nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
-  console.log '[SUMMON] %s : writing shell script parameters to krake', instanceId
+  console.log new Date() + ' [SUMMON] %s : writing shell script parameters to krake', instanceId
   paramsLength = shellScriptParams.length - 1
   tags = []
   for x in [0..paramsLength]
@@ -106,11 +106,11 @@ nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
   ec2Client = getAwsClient awsRegion
   ec2Client.createTags options, (err, data)=>
     if err
-      console.log '[SUMMON] %s : cannot name Kraken ' + 
+      console.log new Date() + ' [SUMMON] %s : cannot name Kraken ' + 
         '\n\t\tERROR : %s', instanceId, err
       
     else 
-      console.log '[SUMMON] %s : Shell script parameters written', instanceId
+      console.log new Date() + ' [SUMMON] %s : Shell script parameters written', instanceId
 
 
 
