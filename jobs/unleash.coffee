@@ -18,11 +18,12 @@ unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
   console.log  new Date() + " [UNLEASH] %s : Unleashing Kraken in ", instanceId, awsRegion
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
     if err
-      callback && callback(new Error("Error getting kraken"))
+      console.log new Date() + ' [UNLEASH] : Error getting kraken'
+      callback && callback()
     
     else if !kraken
       console.log  new Date() + " [UNLEASH] %s : the kraken does not exist", instanceId    
-      callback && callback(new Error("the kraken does not exist"))
+      callback && callback()
       
     command = __dirname + "/../shell_scripts/start_slave.sh "+ kraken.PublicDnsName
     paramsLength = shellScriptParams.length - 1      
@@ -50,11 +51,12 @@ executeShellScript = (awsRegion, instanceId, command, callback)->
   console.log  new Date() + ' [UNLEASH] %s : Executing shell command', instanceId
   Kraken.getByID awsRegion, instanceId, (err, kraken)->    
     if err
-      callback && callback(new Error("Error getting kraken"))
+      console.log  new Date() + " [UNLEASH] %s : Error getting kraken", instanceId          
+      callback && callback()
   
     else if !kraken
       console.log  new Date() + " [UNLEASH] %s : the kraken does not exist", instanceId    
-      callback && callback(new Error("the kraken does not exist"))
+      callback && callback()
         
     else if kraken
       switch kraken.State.Code
@@ -73,7 +75,7 @@ executeShellScript = (awsRegion, instanceId, command, callback)->
         
         else
           console.log  new Date() + " [UNLEASH] %s : Cannot unleash inactive kraken", instanceId
-          callback && callback( new Error("kraken is no longer active") )
+          callback && callback()
 
 
 

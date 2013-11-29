@@ -9,7 +9,8 @@ reincarnateTheKraken = (awsRegion, instanceId, callback)->
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
   
     if !kraken
-      callback && callback(new Error('Kraken not found'))
+      console.log new Date() + ' [MASSACRE] : Kraken not found'
+      callback && callback()
       
     else
       shellScriptParams = []
@@ -25,7 +26,8 @@ reincarnateTheKraken = (awsRegion, instanceId, callback)->
       console.log new Date() + ' [REINCARNATE] %s : Terminating Kraken', instanceId
       ec2Client.terminateInstances { InstanceIds : [instanceId] }, (err, data)->
         if err
-          callback && callback(new Error(err))
+          console.log new Date() + ' [MASSACRE] : %s', err
+          callback && callback()
           
         else
           resque.enqueue( "aws", "summon", [

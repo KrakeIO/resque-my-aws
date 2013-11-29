@@ -6,10 +6,12 @@ massacreTheKrakens = (awsRegion, shellScriptParams, callback)->
   console.log new Date() + ' [MASSACRE] : consolidating hit list queuename : %s', shellScriptParams[0]
   Kraken.getAll awsRegion, shellScriptParams, (err, theKrakens)->
     if err
-      callback && callback(new Error(err))
+      console.log new Date() + ' [MASSACRE] : %s', err
+      callback && callback()
       
     else if !theKrakens
-      callback && callback(new Error("No Krakens were found"))
+      console.log new Date() + ' [MASSACRE] : No Krakens were found'
+      callback && callback()
       
     else if theKrakens
       killList = theKrakens.map (kraken)->
@@ -21,7 +23,8 @@ massacreTheKrakens = (awsRegion, shellScriptParams, callback)->
       ec2Client = getAwsClient awsRegion
       ec2Client.terminateInstances tOpts, (err, data)->    
         if err
-          callback && callback(new Error(err))
+          console.log new Date() + ' [MASSACRE] : %s', err
+          callback && callback()
         else
           callback && callback()
         

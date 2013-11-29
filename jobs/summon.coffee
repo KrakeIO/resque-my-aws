@@ -35,7 +35,7 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptP
       awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
         if err
           console.log new Date() + ' [SUMMON] Error — Line 190 \n\t\t%s', err
-          callback && callback(new Error(err))
+          callback && callback()
           
         else
           console.log  new Date() + ' [SUMMON] %s : Kraken sent for unleashing' +
