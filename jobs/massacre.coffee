@@ -3,19 +3,18 @@ getAwsClient = require '../helper/get_aws_client'
 Kraken = require '../model/kraken'
 
 massacreTheKrakens = (awsRegion, shellScriptParams, callback)->
-  console.log new Date() + ' [MASSACRE] : consolidating hit list queuename : %s', shellScriptParams[0]
+  console.log '%s [MASSACRE] : consolidating hit list queuename : %s', new Date(), shellScriptParams[0]
   Kraken.getAll awsRegion, shellScriptParams, (err, theKrakens)->
     if err
-      console.log new Date() + ' [MASSACRE] : %s', err
+      console.log '%s [MASSACRE] %s : %s', new Date(), shellScriptParams[0], err
       callback && callback()
       
     else if !theKrakens
-      console.log new Date() + ' [MASSACRE] : No Krakens were found'
+      console.log '%s [MASSACRE] %s : No Krakens were found', new Date(), shellScriptParams[0]
       callback && callback()
       
     else if theKrakens
       killList = theKrakens.map (kraken)->
-        console.log new Date() + ' [MASSACRE] %s : Terminating instance', kraken.InstanceId
         kraken.InstanceId
       
       tOpts =
@@ -23,9 +22,10 @@ massacreTheKrakens = (awsRegion, shellScriptParams, callback)->
       ec2Client = getAwsClient awsRegion
       ec2Client.terminateInstances tOpts, (err, data)->    
         if err
-          console.log new Date() + ' [MASSACRE] : %s', err
+          console.log '%s [MASSACRE] %s : Termination error %s', new Date(), killList.join(), err
           callback && callback()
         else
+          console.log '%s [MASSACRE] %s : Instances terminated', new Date(), killList.join()          
           callback && callback()
         
     

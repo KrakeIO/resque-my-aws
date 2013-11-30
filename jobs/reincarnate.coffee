@@ -5,11 +5,11 @@ getAwsClient = require '../helper/get_aws_client'
 Kraken = require '../model/kraken'
 
 reincarnateTheKraken = (awsRegion, instanceId, callback)->
-  console.log new Date() + ' [REINCARNATE] %s : Reincarnating Kraken', instanceId
+  console.log '%s [REINCARNATE] %s : Reincarnating Kraken', new Date(), instanceId
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
   
     if !kraken
-      console.log new Date() + ' [MASSACRE] : Kraken not found'
+      console.log '%s [REINCARNATE] %s : Kraken not found', new Date(), instanceId
       callback && callback()
       
     else
@@ -23,10 +23,10 @@ reincarnateTheKraken = (awsRegion, instanceId, callback)->
       })    
 
       ec2Client = getAwsClient awsRegion
-      console.log new Date() + ' [REINCARNATE] %s : Terminating Kraken', instanceId
+      console.log '%s [REINCARNATE] %s : Terminating Kraken', new Date(), instanceId
       ec2Client.terminateInstances { InstanceIds : [instanceId] }, (err, data)->
         if err
-          console.log new Date() + ' [MASSACRE] : %s', err
+          console.log '%s [REINCARNATE] %s : %s', new Date(), instanceId, err
           callback && callback()
           
         else

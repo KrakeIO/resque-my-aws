@@ -15,7 +15,7 @@ Kraken = require '../model/kraken'
 # @param: shellScriptParams:Array[String]
 # @param: callback:function()
 summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, callback)->
-  console.log new Date() + ' [SUMMON] : Summoning a Kraken'
+  console.log '%s [SUMMON] : Summoning a Kraken %s', new Date(), shellScriptParams.join()
   
   summoning_options = 
     ImageId : imageId
@@ -26,20 +26,20 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptP
   
   ec2Client = getAwsClient awsRegion
   ec2Client.runInstances summoning_options, (err, data)=>
-    if err then console.log  new Date() + ' [SUMMON] %s', err
+    if err then console.log '%s [SUMMON] %s %s', new Date(), shellScriptParams.join(), err
     
     for x in [0...data.Instances.length]
-      console.log new Date() + ' [SUMMON] %s : Checking the status of our kraken', data.Instances[x].InstanceId
+      console.log '%s [SUMMON] %s : Checking the status of our kraken', new Date(), data.Instances[x].InstanceId
       instanceId = data.Instances[x].InstanceId
       nameTheKraken awsRegion, instanceId, shellScriptParams
       awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
         if err
-          console.log new Date() + ' [SUMMON] Error — Line 190 \n\t\t%s', err
+          console.log '%s [SUMMON] Error — Line 190 \n\t\t%s %s %s', new Date(), shellScriptParams.join(), currInstanceId, err
           callback && callback()
           
         else
-          console.log  new Date() + ' [SUMMON] %s : Kraken sent for unleashing' +
-            '\n\t\t%s', currInstanceId, awsRegion
+          console.log  '%s [SUMMON] %s %s : Kraken sent for unleashing' +
+            '\n\t\t%s', new Date(), currInstanceId, shellScriptParams.join(), awsRegion
             
           resque = require('coffee-resque').connect({
             host: REDIS_HOST,
@@ -59,27 +59,27 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
     if err
-      console.log  new Date() + ' [SUMMON] %s : ERROR with instance\n\t\t%s', instanceId, err
+      console.log '%s [SUMMON] %s : ERROR with instance\n\t\t%s', new Date(), instanceId, err
       callback && callback(err, instanceId)
               
     else if !kraken == 0
-      console.log  new Date() + ' [SUMMON] %s : The Kraken remains a myth. It cannot be unleashed.', instanceId      
+      console.log  '%s [SUMMON] %s : The Kraken remains a myth. It cannot be unleashed.', new Date(), instanceId      
         
     else if kraken
       
       switch kraken.State.Code
         when 16 
-          console.log new Date() + ' [SUMMON] %s : The kraken is awake.', instanceId
+          console.log '%s [SUMMON] %s : The kraken is awake.', new Date(), instanceId
           callback && callback(null, instanceId)
 
         when 0
-          console.log new Date() + ' [SUMMON] %s : The kraken is still waking up. Recheck in 5secs', instanceId
+          console.log '%s [SUMMON] %s : The kraken is still waking up. Recheck in 5secs', new Date(), instanceId
           setTimeout ()=>
             awakenTheKraken awsRegion, instanceId, callback 
           , 10000
           
         else
-          console.log new Date() + ' [SUMMON] %s : The kraken is dead. It will never wake up', instanceId          
+          console.log '%s [SUMMON] %s : The kraken is dead. It will never wake up', new Date(), instanceId
           callback && callback("The Krake is dead", instanceId)
 
 
@@ -89,7 +89,7 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 # @param instanceId:String
 # @param: params:Array[String]
 nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
-  console.log new Date() + ' [SUMMON] %s : writing shell script parameters to krake', instanceId
+  console.log '%s [SUMMON] %s : writing shell script parameters to krake', new Date(), instanceId
   paramsLength = shellScriptParams.length - 1
   tags = []
   for x in [0..paramsLength]
@@ -106,11 +106,11 @@ nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
   ec2Client = getAwsClient awsRegion
   ec2Client.createTags options, (err, data)=>
     if err
-      console.log new Date() + ' [SUMMON] %s : cannot name Kraken ' + 
-        '\n\t\tERROR : %s', instanceId, err
+      console.log '%s [SUMMON] %s : cannot name Kraken ' + 
+        '\n\t\tERROR : %s', new Date(), instanceId, err
       
     else 
-      console.log new Date() + ' [SUMMON] %s : Shell script parameters written', instanceId
+      console.log '%s [SUMMON] %s : Shell script parameters written', new Date(), instanceId
 
 
 
