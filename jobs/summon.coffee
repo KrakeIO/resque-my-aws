@@ -89,7 +89,7 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
 # @param instanceId:String
 # @param: params:Array[String]
 nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
-  console.log '%s [SUMMON] %s : writing shell script parameters to krake', new Date(), instanceId
+  console.log '%s [SUMMON] %s : writing shell script parameters to krake > %s', new Date(), instanceId, shellScriptParams.join(",")
   paramsLength = shellScriptParams.length - 1
   tags = []
   for x in [0..paramsLength]
