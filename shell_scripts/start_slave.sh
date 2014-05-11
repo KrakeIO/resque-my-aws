@@ -29,6 +29,7 @@ fi
 ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
 " . ~/.nvm/nvm.sh && 
   nvm use v0.8.8 && 
+  mkdir ~/logs &&
   cd /home/prod/krake_phantomjs/ && 
   git checkout -f &&
   git pull origin master &&
