@@ -34,7 +34,7 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   git pull origin master &&
   npm install &&
   forever stop -c phantomjs --load-images=no server.js &&
-  forever start -c phantomjs --load-images=no server.js &&
+  forever start -l ~/logs/phantom -a -c phantomjs --load-images=no server.js &&
   cd /home/prod/krake_slave_server/ && 
   git checkout -f && 
   git pull origin master && 
@@ -42,5 +42,5 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   export CAN_SHUTDOWN=$what && 
   npm install &&  
   forever stop -c coffee krake_slave_server.coffee && 
-  forever start -c coffee krake_slave_server.coffee $2
+  forever start -l ~/logs/slave -a -c coffee krake_slave_server.coffee $2
   "
