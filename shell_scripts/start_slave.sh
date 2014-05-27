@@ -29,12 +29,13 @@ fi
 ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
 " . ~/.nvm/nvm.sh && 
   nvm use v0.10.28 && 
+  rm -rf ~/logs &&
   mkdir ~/logs &&
   cd /home/prod/krake_phantomjs/ && 
   git checkout -f &&
   git pull origin master &&
   npm install &&
-  forever stop -c phantomjs --load-images=no server.js &&
+  # forever stop -c phantomjs --load-images=no server.js &&
   forever start -l ~/logs/phantom -a -c phantomjs --load-images=no server.js &&
   cd /home/prod/krake_slave_server/ && 
   git checkout -f && 
@@ -42,6 +43,6 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   export NODE_ENV=production && 
   export CAN_SHUTDOWN=$what && 
   npm install &&  
-  forever stop -c coffee krake_slave_server.coffee && 
+  # forever stop -c coffee krake_slave_server.coffee && 
   forever start -l ~/logs/slave -a -c coffee krake_slave_server.coffee $2
   "
