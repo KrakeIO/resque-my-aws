@@ -28,7 +28,7 @@ fi
 # Boots the AWS instance
 ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
 " . ~/.nvm/nvm.sh && 
-  nvm use v0.8.8 && 
+  nvm use v0.10.28 && 
   mkdir ~/logs &&
   cd /home/prod/krake_phantomjs/ && 
   git checkout -f &&
