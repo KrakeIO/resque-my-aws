@@ -26,8 +26,7 @@ unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
       callback && callback()
       
     command = getCommand kraken.PublicDnsName, shellScriptParams, instanceId
-    console.log  "%s [UNLEASH] %s : Shell command to be executed" + 
-      "\n\t\t%s", new Date(), command
+    console.log  "#{new Date()} [UNLEASH]: Shell command to be executed\r\n\t#{command}" 
        
     executeShellScript awsRegion, instanceId, command, (err, data)->
       if err
