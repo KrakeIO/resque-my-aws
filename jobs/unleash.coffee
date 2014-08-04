@@ -25,20 +25,23 @@ unleashTheKraken = (awsRegion, instanceId, shellScriptParams, callback)->
       console.log "%s [UNLEASH] %s : the kraken does not exist", new Date(), instanceId    
       callback && callback()
       
-    command = __dirname + "/../shell_scripts/start_slave.sh " + kraken.PublicDnsName
-    paramsLength = shellScriptParams.length - 1      
-    for x in [0..paramsLength]
-      command += " " + shellScriptParams[x]
-      
+    command = getCommand kraken.PublicDnsName, shellScriptParams, instanceId
     console.log  "%s [UNLEASH] %s : Shell command to be executed" + 
-      "\n\t\t%s", new Date(), instanceId, command
+      "\n\t\t%s", new Date(), command
        
     executeShellScript awsRegion, instanceId, command, (err, data)->
       if err
         callback && callback(err)
       else
         callback && callback()
-      
+
+# @Description: Returns a string that can be executed to spin up an EC2 instance
+# @param:  host_name:String
+# @param:  queue_name:String
+# @param:  aws_instance_id:String
+# @return: String — E.g. "/../shell_scripts/start_slave.sh some.aws.server task_queue aws_instance_id"
+getCommand = (host_name, queue_name, aws_instance_id)->
+  command = __dirname + "/../shell_scripts/start_slave.sh #{host_name} #{queue_name} #{aws_instance_id}"
 
 
 # @Description : Executes the actual shell script on the EC2 instance
