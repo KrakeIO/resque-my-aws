@@ -2,7 +2,8 @@
   @Description : Starts the slave process for the first time in a remote production instances
       using SSH shell
   @param : hostname:String        -- $1
-  @param : queue_name:String -- $2
+  @param : queue_name:String      -- $2
+  @param : aws_instance_id:String -- $3
 COMMENT
 
 
@@ -42,7 +43,8 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   git pull origin master && 
   export NODE_ENV=production && 
   export CAN_SHUTDOWN=$what && 
+  export 
   npm install &&  
   # forever stop -c coffee krake_slave_server.coffee && 
-  forever start -l ~/logs/slave -a -c coffee krake_slave_server.coffee $2
+  forever start -l ~/logs/slave -a -c coffee krake_slave_server.coffee $2 $3
   "
