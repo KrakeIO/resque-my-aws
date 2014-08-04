@@ -5,7 +5,7 @@ getAwsClient = require '../helper/get_aws_client'
 Kraken = require '../model/kraken'
 
 reincarnateTheKraken = (awsRegion, queueName, instanceId, callback)->
-  console.log '%s [REINCARNATE] %s : Reincarnating Kraken', new Date(), instanceId
+  console.log "#{new Date()} [REINCARNATE]: Reincarnating Kraken\r\n\tqueueName: #{queueName}\r\n\tinstanceId: #{instanceId}"
   Kraken.getByID awsRegion, instanceId, (err, kraken)->
   
     if !kraken
@@ -13,7 +13,8 @@ reincarnateTheKraken = (awsRegion, queueName, instanceId, callback)->
       callback && callback()
       
     else
-      shellScriptParams = [queueName]
+      shellScriptParams    = []
+      shellScriptParams[0] = queueName
   
       resque = require('coffee-resque').connect({
         host: REDIS_HOST,
