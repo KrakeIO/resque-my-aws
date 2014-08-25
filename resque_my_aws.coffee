@@ -15,9 +15,11 @@ global.SECRET_ACCESS_KEY = process.env['AWS_SECRET_KEY']
 
 # dependencies
 unleashTheKraken = require "./jobs/unleash"
-summonTheKraken = require("./jobs/summon").summonTheKraken
+Summoner = require("./jobs/summoner")
 reincarnateTheKraken = require "./jobs/reincarnate"
 massacreTheKraken = require "./jobs/massacre"
+
+summoner = new Summoner(REDIS_HOST, REDIS_PORT)
 
 # setup a worker
 worker = require("coffee-resque").connect({
@@ -25,10 +27,10 @@ worker = require("coffee-resque").connect({
   port: REDIS_PORT
   
 }).worker( "aws", { 
-  unleash: unleashTheKraken 
-  summon : summonTheKraken 
+  summon: ->   summoner.summonTheKraken.apply summoner, arguments
+  unleash:      unleashTheKraken
   reincarnate : reincarnateTheKraken
-  massacre : massacreTheKraken
+  massacre :    massacreTheKraken
   
 })
 
