@@ -15,7 +15,7 @@ global.SECRET_ACCESS_KEY = process.env['AWS_SECRET_KEY']
 
 # dependencies
 unleashTheKraken = require "./jobs/unleash"
-summonTheKraken = require "./jobs/summon"
+summonTheKraken = require("./jobs/summon").summonTheKraken
 reincarnateTheKraken = require "./jobs/reincarnate"
 massacreTheKraken = require "./jobs/massacre"
 

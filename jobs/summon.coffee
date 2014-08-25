@@ -1,11 +1,15 @@
 # Spins up an AWS EC2 instance
 
 # dependencies
-exec = require("child_process").exec
-getAwsClient = require '../helper/get_aws_client'
-Kraken = require '../model/kraken'
-
-
+exec            = require("child_process").exec
+getAwsClient    = require '../helper/get_aws_client'
+Kraken          = require '../model/kraken'
+redis           = require 'redis'
+resqueClient    = require('coffee-resque').connect({
+    host: REDIS_HOST,
+    port: REDIS_PORT
+  })
+redisClient     = redis.createClient REDIS_PORT, REDIS_HOST
 
 # @Description: Launches a EC2 Instance and when the instance is ready awakens the monster within.
 # @param: awsRegion:String
@@ -16,7 +20,30 @@ Kraken = require '../model/kraken'
 # @param: callback:function()
 summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, callback)->
   console.log '%s [SUMMON] : Summoning a Kraken %s', new Date(), shellScriptParams.join()
+
+  redisClient = redis.createClient REDIS_PORT, REDIS_HOST  
+
+  queueName = shellScriptParams[0]
   
+  redisClient.multi([
+        ["llen", queueName],
+        ["get", "#{queueName}_BUSY"]
+      ]).exec (err, replies)->
+        console.log arguments
+        is_busy = replies[0] > 0 || replies[1] == "BUSY"
+
+        if is_busy
+          console.log "#{new Date()} [SUMMON] #{queueName} has work to be done. Proceeding to summon EC2"
+          spinUpEC2Instance awsRegion, imageId, securityGroup, instanceType, shellScriptParams, 0, callback
+
+        else
+          console.log "#{new Date()} [SUMMON] #{queueName} has no work to be done. Not summoning another EC2 instance"
+          callback?()
+
+
+
+# Spins up an actual EC2 instance
+spinUpEC2Instance = (awsRegion, imageId, securityGroup, instanceType, shellScriptParams, retries, callback)->
   summoning_options = 
     ImageId : imageId
     MinCount : 1
@@ -26,28 +53,55 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptP
   
   ec2Client = getAwsClient awsRegion
   ec2Client.runInstances summoning_options, (err, data)=>
-    if err then console.log '%s [SUMMON] %s %s', new Date(), shellScriptParams.join(), err
-    
-    for x in [0...data.Instances.length]
-      console.log '%s [SUMMON] %s : Checking the status of our kraken', new Date(), data.Instances[x].InstanceId
-      instanceId = data.Instances[x].InstanceId
-      nameTheKraken awsRegion, instanceId, shellScriptParams
-      awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
-        if err
-          console.log '%s [SUMMON] Error — Line 190 \n\t\t%s %s %s', new Date(), shellScriptParams.join(), currInstanceId, err
-          callback && callback()
-          
-        else
-          console.log  '%s [SUMMON] %s %s : Kraken sent for unleashing' +
-            '\n\t\t%s', new Date(), currInstanceId, shellScriptParams.join(), awsRegion
-            
-          resque = require('coffee-resque').connect({
-            host: REDIS_HOST,
-            port: REDIS_PORT
-          })
-          
-          resque.enqueue( 'aws', 'unleash', [awsRegion, currInstanceId, shellScriptParams] )
-          callback && callback()
+
+    if err && retries < 3
+      console.log '%s [SUMMON] %s retries %s, %s', new Date(), shellScriptParams.join(), retries, err
+      spinUpEC2Instance awsRegion, imageId, securityGroup, instanceType, shellScriptParams, retries + 1, callback
+
+    else if (!data.Instances || data.Instances.length == 0) && retries < 3
+      console.log '%s [SUMMON] %s no instances were spun up. retries %s', new Date(), shellScriptParams.join(), retries
+      spinUpEC2Instance awsRegion, imageId, securityGroup, instanceType, shellScriptParams, retries + 1, callback
+
+    else if retries >= 3
+      console.log '%s [SUMMON] %s Finally failed to respin up any EC2 instances after retries %s', new Date(), shellScriptParams.join(), retries
+      callback?()
+
+    else    
+      for x in [0...data.Instances.length]
+        console.log '%s [SUMMON] %s : Checking the status of our kraken', new Date(), data.Instances[x].InstanceId
+        instanceId = data.Instances[x].InstanceId
+        afterSummon awsRegion, imageId, securityGroup, instanceType, instanceId, shellScriptParams, 0, callback
+
+
+
+afterSummon = (awsRegion, imageId, securityGroup, instanceType, instanceId, shellScriptParams, retries, callback)->
+  nameTheKraken awsRegion, instanceId, shellScriptParams
+  awakenTheKraken awsRegion, instanceId, (err, currInstanceId)=>
+    if err
+      console.log '%s [SUMMON] %s Error — Line 190 \n\t\t%s %s', new Date(), shellScriptParams.join(), currInstanceId, err
+
+      if retries < 3
+        console.log '%s [SUMMON] %s Retrying to awaken\n\t\t%s for %s times', new Date(), shellScriptParams.join(), currInstanceId, retries, err
+        afterSummon awsRegion, imageId, securityGroup, instanceType, instanceId, shellScriptParams, retries + 1, callback
+
+      else
+        console.log '%s [SUMMON] %s Summoning another Kraken instead. Finally failed with %s — %s', new Date(), shellScriptParams.join(), currInstanceId, err
+
+        resqueClient.enqueue( "aws", "summon", [
+          awsRegion, 
+          imageId,
+          securityGroup, 
+          instanceType,
+          shellScriptParams ] )
+
+        callback && callback()
+      
+    else
+      console.log  '%s [SUMMON] %s %s : Kraken sent for unleashing' +
+        '\n\t\t%s', new Date(), currInstanceId, shellScriptParams.join(), awsRegion
+      
+      resqueClient.enqueue( 'aws', 'unleash', [awsRegion, currInstanceId, shellScriptParams] )
+      callback && callback()
 
 
 
@@ -80,7 +134,7 @@ awakenTheKraken = (awsRegion, instanceId, callback)=>
           
         else
           console.log '%s [SUMMON] %s : The kraken is dead. It will never wake up', new Date(), instanceId
-          callback && callback("The Krake is dead", instanceId)
+          callback && callback("The Kraken is dead", instanceId)
 
 
 
@@ -114,5 +168,13 @@ nameTheKraken = (awsRegion, instanceId, shellScriptParams)=>
 
 
 
-module.exports = summonTheKraken
+quit = (callback)->
+  redisClient?.quit()
+  callback?()
 
+
+module.exports = 
+  summonTheKraken:  summonTheKraken
+  awakenTheKraken:  awakenTheKraken
+  nameTheKraken:    nameTheKraken
+  quit:             quit

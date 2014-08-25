@@ -1,12 +1,14 @@
 redisHost = process.env["REDIS_HOST"] || "localhost"
 redisPort = "6379"
 ec2Region = "ap-southeast-1"
-ec2Image = "ami-c0e8a292"
+ec2Image = "ami-e6e9b1b4"
 ec2SecurityGroup = "Krake Instance"
 ec2Type = "t1.micro"
-queueName = "queueName"
-eventName = "eventName"
+queueName = "GARYJOB"
+eventName = "WHATTODO"
 shellScriptParams = [queueName, eventName]
+
+# summoning = require("../jobs/summon")
 
 describe "testing to ensure resque process can bootup EC2", ()->
   it "should respond with something", (done)->
