@@ -8,6 +8,7 @@
   }
   , "dependencies": {
       "coffee-resque" : ""
-    , "aws-sdk": ""    
+    , "aws-sdk": ""
+    , "redis": ""
   }  
 }
