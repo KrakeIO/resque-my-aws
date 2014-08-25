@@ -29,7 +29,6 @@ summonTheKraken = (awsRegion, imageId, securityGroup, instanceType, shellScriptP
         ["llen", queueName],
         ["get", "#{queueName}_BUSY"]
       ]).exec (err, replies)->
-        console.log arguments
         is_busy = replies[0] > 0 || replies[1] == "BUSY"
 
         if is_busy
