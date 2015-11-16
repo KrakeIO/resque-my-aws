@@ -32,6 +32,11 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   nvm use v0.10.28 && 
   rm -rf ~/logs &&
   mkdir ~/logs &&
+  cd /home/prod/krake-translate/ &&
+  git checkout -f &&
+  git pull origin master &&
+  npm install && 
+  forever start -l ~/logs/translate -a -c coffee server_translate.coffee &&
   cd /home/prod/krake_phantomjs/ && 
   git checkout -f &&
   git pull origin master &&
