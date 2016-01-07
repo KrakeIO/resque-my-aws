@@ -65,7 +65,7 @@ executeShellScript = (awsRegion, instanceId, command, callback)->
         when 16 # when is awake
           exec command, (err, stdout, stderr)=>
             if err
-              console.log '%s [UNLEASH] %s : Shell command failed.', new Date(), instanceId
+              console.log '%s [UNLEASH] %s : Shell command failed : \n\tcommand:%s \n\terror: %s ', new Date(), instanceId, command, err
               executeShellScript awsRegion, instanceId, command, callback
             
             else
