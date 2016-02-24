@@ -42,7 +42,8 @@ ssh prod@$1 -p 2202 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
   git pull origin master &&
   npm install &&
   # forever stop -c phantomjs --ignore-ssl-errors=true --ssl-protocol=any --load-images=no server.js &&
-  forever start -l ~/logs/phantom -a -c phantomjs --ignore-ssl-errors=true --ssl-protocol=any --load-images=no server.js &&
+  # forever start -l ~/logs/phantom -a -c phantomjs --ignore-ssl-errors=true --ssl-protocol=any --load-images=no server.js &&
+  nohup phantomjs --ignore-ssl-errors=true --ssl-protocol=any --load-images=no server.js  > ~/logs/phantom 2>&1 & &&
   cd /home/prod/krake_slave_server/ && 
   git checkout -f && 
   git pull origin master && 
